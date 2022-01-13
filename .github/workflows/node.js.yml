@@ -1,0 +1,51 @@
+# This workflow will do a clean install of node dependencies, cache/restore them, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: Node.js CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  # You can name this anything
+  build:
+
+#     runs-on: ubuntu-latest
+    runs-on: ${{matrix.os}}
+
+    strategy:
+      matrix:
+#         os: [ubuntu-latest, windows-latest, macOS-latest]
+        os: [ubuntu-latest]
+#         node-version: [12.x, 14.x, 16.x]
+        node-version: [16.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
+    steps:
+    
+    # When you want build the app or run test, you need to checkout the code first
+    - uses: actions/checkout@v2
+    
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v2
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    - run: npm ci  --if-present
+    - run: npm run build --if-present
+    - run: npm test --if-present
+    
+    - name: Build and Push Docker Image
+      uses: mr-smithers-excellent/docker-build-push@v5
+      with:
+        image: sampsonorson/play-express-site
+        tags: 1.0.0, latest
+        registry: docker.io
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+  
+#   publish:
+#     needs: build
