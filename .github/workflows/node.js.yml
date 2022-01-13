@@ -13,10 +13,12 @@ jobs:
   # You can name this anything
   build:
 
-    runs-on: ubuntu-latest
+#     runs-on: ubuntu-latest
+    runs-on: ${{matrix.os}}
 
     strategy:
       matrix:
+        os: [ubuntu-latest, windows-latest, macOS-latest]
         node-version: [12.x, 14.x, 16.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
@@ -30,6 +32,9 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
-    - run: npm ci
+    - run: npm ci  --if-present
     - run: npm run build --if-present
     - run: npm test --if-present
+  
+#   publish:
+#     needs: build
