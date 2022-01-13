@@ -1,0 +1,8 @@
+version: "3"
+services:
+  devapp:
+    build: .
+    ports:
+      - "7777:3000"
+    volumes:
+      - ".:/var/www"
